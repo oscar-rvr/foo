@@ -86,8 +86,50 @@ Injected via implementation ====> Hello World
 ```
 
 ---
+## Try using @Autowired injection on a field that is final
+No se puede inyectar con @Autowired un campo final directamente, porque Spring no puede asignarle un valor después de que el objeto ha sido construido, y los campos final deben inicializarse en el constructor o al declararse.
 
+📌 Alternativas válidas:
+
+Usa constructor injection: Spring lo prefiere y sí permite inyectar final porque se pasa al constructor al crear el bean.
+
+```
+private final MyService myService;
+
+@Autowired
+public MyComponent(MyService myService) {
+    this.myService = myService;
+}
+```
+## Try to inject a correct bean without using @Qualifier
+Sí se puede inyectar un bean sin usar @Qualifier solo si hay un único bean del tipo a inyectar, porque Spring no tiene ambigüedad y sabe cuál usar.
+
+📌 Ejemplo válido sin @Qualifier:
+
+```
+@Component
+public class EmailService implements MessageService {
+    public void send(String msg) {
+        System.out.println("Email: " + msg);
+    }
+}
+```
+```
+@Component
+public class NotificationController {
+    private final MessageService service;
+
+    @Autowired
+    public NotificationController(MessageService service) {
+        this.service = service;
+    }
+}
+```
+
+✅ Como EmailService es el único bean que implementa MessageService, Spring lo inyecta automáticamente sin @Qualifier.
 ## ✅ Conclusión
 
 - **Recomendación**: siempre que sea posible, inyectar usando interfaces para desacoplar el código y favorecer la prueba y escalabilidad.
 - Spring permite inyectar por clase o interfaz, pero usar interfaces es una mejor práctica para seguir el principio de inversión de dependencias (D de SOLID).
+
+
